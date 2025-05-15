@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Reservar{% endblock %}
+
+{% block content %}
+    <h1>Reservar cita</h1>
+    <form method="POST">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required>
+
+        <label>Servicio:</label>
+        <select name="servicio" required>
+            <option value="">Seleccionar</option>
+            <option>Masajes relajantes</option>
+            <option>Depilación con cera</option>
+            <option>Limpieza facial</option>
+            <option>Tratamientos capilares</option>
+        </select>
+
+        <label>Fecha:</label>
+        <input type="date" name="fecha" required>
+
+        <button type="submit">Reservar</button>
+    </form>
+    <a href="/">Volver al inicio</a>
+{% endblock %}
