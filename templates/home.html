@@ -1,13 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Inicio - Sistema Spa{% endblock %}
 
 {% block content %}
-    <h1>Bienvenido al Spa</h1>
-    <p>Reserva tu cita fácilmente.</p>
-    <ul>
-        <li><a href="/servicios">Ver servicios</a></li>
-        <li><a href="/reservar">Reservar cita</a></li>
-        <li><a href="/admin">Administración</a></li>
-    </ul>
+
+
+<!-- Carrousel -->
+<div class="carousel-container">
+    <div class="carousel-track">
+        <img src="{{ url_for('static', filename='img/banner1.jpg') }}" alt="Imagen 1" />
+        <img src="{{ url_for('static', filename='img/banner2.jpg') }}" alt="Imagen 1" />
+        <img src="{{ url_for('static', filename='img/banner3.jpg') }}" alt="Imagen 1" />
+        <img src="{{ url_for('static', filename='img/banner4.jpg') }}" alt="Imagen 1" />
+        <img src="{{ url_for('static', filename='img/banner5.jpg') }}" alt="Imagen 1" />
+        <img src="{{ url_for('static', filename='img/banner6.jpg') }}" alt="Imagen 1" />
+    </div>
+    <button class="carousel-btn prev"></button>
+    <button class="carousel-btn next"></button>
+  </div>
+
+<!-- Sección inferior con tres columnas -->
+<section class="tres-columnas">
+    <div class="columna">
+      <h3>Atención Personalizada</h3>
+      <h3>¡Tu opinión es muy importante!</h3>
+        <p>Déjanos tu comentario.</p>
+        <p>📧 correonegocio@gmail.com</p>
+        <p>📞 111 111 11 11</p>
+        <button class="button">Enviar Comentario</button>
+    </div>
+    <div class="columna">
+        <h3>Nuestros Servicios</h3>
+        <ul>
+            <li>❤️ Manicure tradicional</li>
+            <li>❤️ Extensión de uñas acrílicas</li>
+            <li>❤️ Decoración a mano alzada</li>
+            <li>❤️ Spa de tratamientos</li>
+            <li>❤️ Epilación</li>
+        </ul>
+    </div>
+    <div class="columna">
+        <h3>Conoce nuestras políticas</h3>
+        <ul>
+            <li>Términos y condiciones</li>
+            <li>Política de privacidad</li>
+            <li>Política de devolución de dinero</li>
+        </ul>
+        <h4>Síguenos:</h4>
+        <p>
+            <a href="#">Instagram</a> |
+            <a href="#">Facebook</a> |
+            <a href="#">WhatsApp</a>
+        </p>
+    </div>
+  </section>
+  
+
 {% endblock %}

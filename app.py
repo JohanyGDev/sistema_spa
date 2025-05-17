@@ -1,35 +1,71 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
-from database import init_db, crear_tabla_usuarios, crear_tabla_admin, insertar_admin_por_defecto
 
-app = Flask(__name__)  # Crear la aplicación Flask
-app.secret_key = 'clave_secreta_segura'  # Clave necesaria para manejar sesiones
+# Inicialización de la app Flask
+app = Flask(__name__)
+app.secret_key = 'clave_secreta_segura'  # Clave para manejar sesiones
 
-# Inicializar la base de datos y las tablas necesarias
-init_db()                    # Tabla de reservas
-crear_tabla_usuarios()       # Tabla de usuarios con roles (admin y cliente)
-crear_tabla_admin()          # Opcional si tienes tabla solo para admin (puedes quitarla si unificas)
-insertar_admin_por_defecto() # Insertar un admin por defecto si la tabla está vacía
+# Función para inicializar la base de datos
+def init_db():
+    conn = sqlite3.connect('spa.db')
+    c = conn.cursor()
 
-# Ruta de inicio
+    # Tabla de reservas
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS reservas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            servicio TEXT NOT NULL,
+            fecha TEXT NOT NULL
+        )
+    ''')
+
+    # Tabla de usuarios
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            usuario TEXT NOT NULL UNIQUE,
+            contrasena TEXT NOT NULL,
+            rol TEXT NOT NULL
+        )
+    ''')
+
+    # Insertar un administrador por defecto si no existe
+    c.execute("SELECT * FROM usuarios WHERE usuario = 'admin'")
+    if not c.fetchone():
+        c.execute("INSERT INTO usuarios (nombre, usuario, contrasena, rol) VALUES (?, ?, ?, ?)",
+                  ('Administrador', 'admin', 'admin123', 'admin'))
+
+    conn.commit()
+    conn.close()
+
+# Ejecutar inicialización
+init_db()
+
+# Ruta principal
 @app.route('/')
 def home():
     return render_template('home.html')
+
 
 # Página de servicios
 @app.route('/servicios')
 def servicios():
     return render_template('servicios.html')
 
-# Formulario de reservas (solo para clientes)
+# Página para reservar cita
 @app.route('/reservar', methods=['GET', 'POST'])
 def reservar():
+    if 'usuario' not in session or session.get('rol') != 'cliente':
+        flash('Debes iniciar sesión para agendar una cita.')
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
-        nombre = request.form['nombre']
+        nombre = session.get('nombre')
         servicio = request.form['servicio']
         fecha = request.form['fecha']
 
-        # Guardar la reserva en la base de datos
         conn = sqlite3.connect('spa.db')
         c = conn.cursor()
         c.execute('''
@@ -40,10 +76,11 @@ def reservar():
         conn.close()
 
         return f"<h2>Gracias, {nombre}. Tu cita para '{servicio}' fue agendada para el {fecha}.</h2><a href='/'>Volver al inicio</a>"
-    
-    return render_template('reservar.html')
 
-# Página de login (inicio de sesión)
+    # Si es GET, mostrar el formulario de reserva
+    return render_template('reservar.html', nombre=session.get('nombre'))
+
+# Ruta unificada para login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -53,13 +90,12 @@ def login():
         conn = sqlite3.connect('spa.db')
         c = conn.cursor()
         c.execute('SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ?', (usuario, contrasena))
-        usuario_encontrado = c.fetchone()
+        user = c.fetchone()
         conn.close()
 
-        if usuario_encontrado:
-            # Guardar datos en sesión
-            session['usuario'] = usuario_encontrado[2]  # campo 'usuario'
-            session['rol'] = usuario_encontrado[4]      # campo 'rol': 'admin' o 'cliente'
+        if user:
+            session['usuario'] = user[2]  # usuario
+            session['rol'] = user[4]      # rol
 
             if session['rol'] == 'admin':
                 return redirect(url_for('admin'))
@@ -70,7 +106,7 @@ def login():
 
     return render_template('login.html')
 
-# Panel del administrador (ver reservas)
+# Panel de administrador
 @app.route('/admin')
 def admin():
     if 'usuario' not in session or session['rol'] != 'admin':
@@ -84,15 +120,15 @@ def admin():
 
     return render_template('admin.html', reservas=reservas)
 
-# Panel del cliente (aún por desarrollar)
+# Panel del cliente
 @app.route('/cliente')
 def cliente_dashboard():
     if 'usuario' not in session or session['rol'] != 'cliente':
         return redirect(url_for('login'))
-    
-    return f"<h2>Bienvenido cliente: {session['usuario']}</h2><a href='/'>Volver al inicio</a>"
 
-# Eliminar una reserva (solo admins)
+    return render_template('cliente_dashboard.html')
+
+# Eliminar reserva (solo para admin)
 @app.route('/eliminar/<int:id>')
 def eliminar(id):
     if 'usuario' not in session or session['rol'] != 'admin':
@@ -105,11 +141,12 @@ def eliminar(id):
     conn.close()
     return redirect(url_for('admin'))
 
-# Cerrar sesión (logout)
+# Cerrar sesión
 @app.route('/logout')
 def logout():
-    session.clear()  # Elimina todos los datos de sesión
-    return redirect(url_for('login'))
+    session.clear()
+    return redirect(url_for('home'))
 
+# Ejecutar app
 if __name__ == '__main__':
-    app.run(debug=True)  # Iniciar la aplicación en modo desarrollo
+    app.run(debug=True)

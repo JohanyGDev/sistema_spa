@@ -3,24 +3,23 @@
 {% block title %}Reservar{% endblock %}
 
 {% block content %}
-    <h1>Reservar cita</h1>
+    <h1>Agendar Cita</h1>
+
     <form method="POST">
-        <label>Nombre:</label>
-        <input type="text" name="nombre" required>
+        <label for="nombre">Nombre:</label><br>
+        <input type="text" name="nombre" id="nombre" value="{{ nombre }}" readonly><br><br>
 
-        <label>Servicio:</label>
-        <select name="servicio" required>
-            <option value="">Seleccionar</option>
-            <option>Masajes relajantes</option>
-            <option>Depilación con cera</option>
-            <option>Limpieza facial</option>
-            <option>Tratamientos capilares</option>
-        </select>
+        <label for="servicio">Servicio:</label><br>
+        <select name="servicio" id="servicio" required>
+            <option value="Masaje">Masaje</option>
+            <option value="Facial">Facial</option>
+            <option value="Manicura">Manicura</option>
+            <!-- Puedes agregar más servicios -->
+        </select><br><br>
 
-        <label>Fecha:</label>
-        <input type="date" name="fecha" required>
+        <label for="fecha">Fecha:</label><br>
+        <input type="date" name="fecha" id="fecha" required><br><br>
 
-        <button type="submit">Reservar</button>
+        <button type="submit">Agendar</button>
     </form>
-    <a href="/">Volver al inicio</a>
 {% endblock %}

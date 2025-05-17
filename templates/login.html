@@ -3,11 +3,21 @@
 {% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
-    <h1>Iniciar sesión (Administrador)</h1>
+    <h1>Iniciar sesión</h1>
 
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
+
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for msg in messages %}
+      <div style="background-color: #ffcccc; padding: 10px; border: 1px solid red; color: red; margin-bottom: 10px;">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
     <form method="POST">
         <label for="usuario">Usuario:</label><br>
