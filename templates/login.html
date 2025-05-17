@@ -19,15 +19,12 @@
   {% endif %}
 {% endwith %}
 
-    <form method="POST">
-        <label for="usuario">Usuario:</label><br>
-        <input type="text" name="usuario" id="usuario" required><br><br>
+<form method="POST" action="/login">
+            <input type="email" name="correo" placeholder="Correo electrónico" required>
+            <input type="password" name="contrasena" placeholder="Contraseña" required>
+            <button type="submit">Iniciar sesión</button>
 
-        <label for="contrasena">Contraseña:</label><br>
-        <input type="password" name="contrasena" id="contrasena" required><br><br>
-
-        <button type="submit">Entrar</button>
-    </form>
+ </form>
 
     <br>
     <a href="/">← Volver al inicio</a>

@@ -1,53 +1,14 @@
+import hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import sqlite3
+from database import get_connection
 
-# Inicialización de la app Flask
 app = Flask(__name__)
-app.secret_key = 'clave_secreta_segura'  # Clave para manejar sesiones
-
-# Función para inicializar la base de datos
-def init_db():
-    conn = sqlite3.connect('spa.db')
-    c = conn.cursor()
-
-    # Tabla de reservas
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS reservas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            servicio TEXT NOT NULL,
-            fecha TEXT NOT NULL
-        )
-    ''')
-
-    # Tabla de usuarios
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            usuario TEXT NOT NULL UNIQUE,
-            contrasena TEXT NOT NULL,
-            rol TEXT NOT NULL
-        )
-    ''')
-
-    # Insertar un administrador por defecto si no existe
-    c.execute("SELECT * FROM usuarios WHERE usuario = 'admin'")
-    if not c.fetchone():
-        c.execute("INSERT INTO usuarios (nombre, usuario, contrasena, rol) VALUES (?, ?, ?, ?)",
-                  ('Administrador', 'admin', 'admin123', 'admin'))
-
-    conn.commit()
-    conn.close()
-
-# Ejecutar inicialización
-init_db()
+app.secret_key = 'clave_secreta_segura'  # Cambia esta clave por una segura
 
 # Ruta principal
 @app.route('/')
 def home():
     return render_template('home.html')
-
 
 # Página de servicios
 @app.route('/servicios')
@@ -66,43 +27,45 @@ def reservar():
         servicio = request.form['servicio']
         fecha = request.form['fecha']
 
-        conn = sqlite3.connect('spa.db')
-        c = conn.cursor()
-        c.execute('''
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
             INSERT INTO reservas (nombre, servicio, fecha)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', (nombre, servicio, fecha))
         conn.commit()
+        cursor.close()
         conn.close()
 
         return f"<h2>Gracias, {nombre}. Tu cita para '{servicio}' fue agendada para el {fecha}.</h2><a href='/'>Volver al inicio</a>"
 
-    # Si es GET, mostrar el formulario de reserva
     return render_template('reservar.html', nombre=session.get('nombre'))
 
 # Ruta unificada para login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form['usuario']
+        correo = request.form['correo']
         contrasena = request.form['contrasena']
 
-        conn = sqlite3.connect('spa.db')
-        c = conn.cursor()
-        c.execute('SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ?', (usuario, contrasena))
-        user = c.fetchone()
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT * FROM usuarios WHERE correo = %s AND contrasena = %s', (correo, contrasena))
+        usuario = cursor.fetchone()
+        cursor.close()
         conn.close()
 
-        if user:
-            session['usuario'] = user[2]  # usuario
-            session['rol'] = user[4]      # rol
-
-            if session['rol'] == 'admin':
-                return redirect(url_for('admin'))
+        if usuario:
+            session['usuario'] = usuario['id']
+            session['rol'] = usuario['rol']
+            session['nombre'] = usuario['nombre']
+            if usuario['rol'] == 'admin':
+                return redirect('/admin')
             else:
-                return redirect(url_for('cliente_dashboard'))
+                return redirect('/cliente')
         else:
-            return render_template('login.html', error='Credenciales incorrectas')
+            flash('Credenciales inválidas')
+            return redirect('/login')
 
     return render_template('login.html')
 
@@ -112,10 +75,11 @@ def admin():
     if 'usuario' not in session or session['rol'] != 'admin':
         return redirect(url_for('login'))
 
-    conn = sqlite3.connect('spa.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM reservas')
-    reservas = c.fetchall()
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM reservas')
+    reservas = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     return render_template('admin.html', reservas=reservas)
@@ -134,11 +98,13 @@ def eliminar(id):
     if 'usuario' not in session or session['rol'] != 'admin':
         return redirect(url_for('login'))
 
-    conn = sqlite3.connect('spa.db')
-    c = conn.cursor()
-    c.execute('DELETE FROM reservas WHERE id = ?', (id,))
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM reservas WHERE id = %s', (id,))
     conn.commit()
+    cursor.close()
     conn.close()
+
     return redirect(url_for('admin'))
 
 # Cerrar sesión
@@ -147,6 +113,35 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-# Ejecutar app
+# Registro de usuarios con WhatsApp
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        contrasena = request.form['contrasena']
+        whatsapp = request.form['whatsapp']
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Insertar usuario
+        cursor.execute('INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (%s, %s, %s, %s)',
+                       (nombre, correo, contrasena, 'cliente'))
+        usuario_id = cursor.lastrowid
+
+        # Insertar WhatsApp en tabla clientes
+        cursor.execute('INSERT INTO clientes (usuario_id, whatsapp) VALUES (%s, %s)', (usuario_id, whatsapp))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash('Registro exitoso, por favor inicia sesión.')
+        return redirect('/login')
+
+    return render_template('registro.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
