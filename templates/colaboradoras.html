@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Colaboradoras{% endblock %}
+
+{% block content %}
+<h1>Colaboradoras</h1>
+
+<!-- Botón para abrir el formulario -->
+<button onclick="abrirModal()">Registrar nueva colaboradora</button>
+
+<!-- Modal oculto -->
+<div id="modal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+    <h2>Registrar colaboradora</h2>
+    <form id="formColaboradora" enctype="multipart/form-data">
+        <input type="text" name="nombre" placeholder="Nombre" required><br>
+        <input type="text" name="telefono" placeholder="Teléfono"><br>
+        <input type="email" name="correo" placeholder="Correo"><br>
+        <input type="text" name="direccion" placeholder="Dirección"><br>
+        <label>Foto:</label>
+        <input type="file" name="foto"><br><br>
+
+        <label>Especialidades:</label><br>
+        {% for esp in especialidades %}
+            <input type="checkbox" name="especialidades" value="{{ esp['id'] }}"> {{ esp['nombre'] }}<br>
+        {% endfor %}
+
+        <br><button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+    </form>
+</div>
+
+<!-- Fondo oscuro al abrir el modal -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; z-index:999;" onclick="cerrarModal()"></div>
+
+<hr>
+
+<h2>Colaboradoras Registradas</h2>
+<table>
+    <tr><th>Nombre</th><th>Foto</th><th>Especialidades</th></tr>
+    {% for colab in colaboradoras %}
+    <tr>
+        <td>{{ colab['nombre'] }}</td>
+        <td><img src="{{ url_for('static', filename='img/colaboradoras/' + colab['foto']) }}" width="80"></td>
+        <td>{{ colab['especialidades'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+function abrirModal() {
+    document.getElementById('modal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function cerrarModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+// Enviar formulario por AJAX
+document.getElementById('formColaboradora').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch('/colaboradoras/registrar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: '¡Registrada!',
+                text: 'La colaboradora fue agregada exitosamente.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#a78bfa'  // lavanda o tono suave para spa
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo registrar la colaboradora.',
+                icon: 'error',
+                confirmButtonColor: '#f87171'
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

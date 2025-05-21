@@ -1,4 +1,6 @@
 import hashlib
+import os
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from database import get_connection
 
@@ -141,6 +143,67 @@ def registro():
         return redirect('/login')
 
     return render_template('registro.html')
+
+@app.route('/colaboradoras')
+def colaboradoras():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute('SELECT * FROM especialidades')
+    especialidades = cursor.fetchall()
+
+    cursor.execute('''
+        SELECT c.id, c.nombre, c.foto, GROUP_CONCAT(e.nombre SEPARATOR ", ") as especialidades
+        FROM colaboradoras c
+        LEFT JOIN colaboradora_especialidad ce ON c.id = ce.colaboradora_id
+        LEFT JOIN especialidades e ON ce.especialidad_id = e.id
+        GROUP BY c.id
+    ''')
+    colaboradoras = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('colaboradoras.html', especialidades=especialidades, colaboradoras=colaboradoras)
+
+@app.route('/colaboradoras/registrar', methods=['POST'])
+def registrar_colaboradora():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        nombre = request.form['nombre']
+        telefono = request.form['telefono']
+        correo = request.form['correo']
+        direccion = request.form['direccion']
+
+        foto_file = request.files['foto']
+        foto_filename = ''
+        if foto_file:
+            foto_filename = secure_filename(foto_file.filename)
+            foto_path = os.path.join('static/img/colaboradoras', foto_filename)
+            foto_file.save(foto_path)
+
+        cursor.execute('''
+            INSERT INTO colaboradoras (nombre, telefono, correo, direccion, foto)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (nombre, telefono, correo, direccion, foto_filename))
+        colaboradora_id = cursor.lastrowid
+
+        especialidades = request.form.getlist('especialidades')
+        for esp_id in especialidades:
+            cursor.execute('''
+                INSERT INTO colaboradora_especialidad (colaboradora_id, especialidad_id)
+                VALUES (%s, %s)
+            ''', (colaboradora_id, esp_id))
+
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        print(e)
+        return {"success": False}
+    finally:
+        cursor.close()
+        conn.close()
 
 
 if __name__ == '__main__':

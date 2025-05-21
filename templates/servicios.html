@@ -10,5 +10,15 @@
         <li>Limpieza facial</li>
         <li>Tratamientos capilares</li>
     </ul>
+    {% if 'usuario' in session %}
+                    {% if session['rol'] == 'admin' %}
+                       <a href="#">Agregar nuevo servicio</a>
+                    {% elif session['rol'] == 'cliente' %}
+                       
+                    {% endif %}
+                   
+                {% else %}
+                    <a href="/">Volver</a>
+                {% endif %}
     <a href="/">Volver</a>
 {% endblock %}
