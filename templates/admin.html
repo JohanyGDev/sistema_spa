@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Admin{% endblock %}
+
+{% block content %}
+    <h1>Panel de Administración</h1>
+
+    <h2>Reservas</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Servicio</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+        </tr>
+        {% for reserva in reservas %}
+        <tr>
+            <td>{{ reserva[0] }}</td>
+            <td>{{ reserva[1] }}</td>
+            <td>{{ reserva[2] }}</td>
+            <td>{{ reserva[3] }}</td>
+            <td><a href="/eliminar/{{ reserva[0] }}">Eliminar</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/">Volver al inicio</a>
+{% endblock %}

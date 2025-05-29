@@ -1,0 +1,177 @@
+/* 1. Paleta de colores inspirada en Super Wow */
+:root {
+    --color-principal: #FF69B4;
+    --color-secundario: #f79ff0;
+    --color-fondo: #FFFFFF;
+    --color-texto: #333333;
+    --color-acento: #FF1493;
+}
+
+/* 2. Tipografía global */
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--color-texto);
+    background-color: var(--color-fondo);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* 3. Encabezado y navegación */
+header {
+    background-color: var(--color-principal);
+    padding: 20px;
+    text-align: center;
+    color: var(--color-fondo);
+}
+
+nav a {
+    margin: 0 15px;
+    color: var(--color-fondo);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: var(--color-secundario);
+}
+
+/* 4. Botones */
+.button, button {
+    background-color: var(--color-acento);
+    color: var(--color-fondo);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+.button:hover, button:hover {
+    background-color: var(--color-secundario);
+    color: var(--color-texto);
+}
+
+/* 5. Formularios */
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: var(--color-fondo);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* 6. Imágenes */
+img {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}  
+
+/* 8. Sección de 3 columnas */
+.tres-columnas {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: 60px;
+}
+
+.columna {
+    flex: 1;
+    background-color: #fdf3fa;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease;
+    text-align: center;
+}
+
+.columna:hover {
+    transform: translateY(-5px);
+}
+
+.carousel-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 40px auto;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 10px 0;
+    background: white;
+  }
+  
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: 20px;
+  }
+  
+  .carousel-track img {
+    width: calc((100% / 3) - 13.33px); /* 3 imágenes visibles con gap */
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  
+  .carousel-btn {
+    background-color: var(--color-acento);
+    color: var(--color-fondo);
+    border: none;
+    border-radius: 50%; /* Más redondo */
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+  
+  /* Hover: animación sutil al pasar el mouse */
+.carousel-btn:hover {
+    background-color: var(--color-secundario);
+    transform: translateY(-50%) scale(1.1);
+}
+  
+  /* Posiciones de los botones */
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+}
+  
+  @media (max-width: 768px) {
+    .carousel-track img {
+      width: calc((100% / 1) - 0); /* Mostrar 1 imagen en móvil */
+      height: 180px;
+    }
+  }
+  

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Reservar{% endblock %}
+
+{% block content %}
+<h1>Reservar cita, {{ nombre }}</h1>
+<form id="form-reserva" method="POST" action="{{ url_for('reservar') }}">
+    <label>Servicio:
+        <select id="especialidad" name="especialidad" required>
+            <option value="">Selecciona un servicio</option>
+            {% for esp in especialidades %}
+            <option value="{{ esp.id }}">{{ esp.nombre }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+
+    <label>Colaboradora:
+        <select id="colaboradora" name="colaboradora" required>
+            <option value="">Selecciona una colaboradora</option>
+        </select>
+    </label><br>
+
+    <label>Fecha:
+        <input type="date" id="fecha" name="fecha" min="{{ now.strftime('%Y-%m-%d') }}" required>
+    </label><br>
+
+    <label>Hora:
+        <select id="hora" name="hora" required>
+            <option value="">Selecciona hora</option>
+        </select>
+    </label><br>
+
+    <button type="submit">Reservar</button>
+</form>
+
+<script src="{{ url_for('static', filename='js/reservar.js') }}"></script>
+{% endblock %}

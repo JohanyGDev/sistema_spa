@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Servicios{% endblock %}
+
+{% block content %}
+    <h1>Servicios del Spa</h1>
+    <ul>
+        <li>Masajes relajantes</li>
+        <li>Depilación con cera</li>
+        <li>Limpieza facial</li>
+        <li>Tratamientos capilares</li>
+    </ul>
+    {% if 'usuario' in session %}
+                    {% if session['rol'] == 'admin' %}
+                       <a href="#">Agregar nuevo servicio</a>
+                    {% elif session['rol'] == 'cliente' %}
+                       
+                    {% endif %}
+                   
+                {% else %}
+                    <a href="/">Volver</a>
+                {% endif %}
+    <a href="/">Volver</a>
+{% endblock %}

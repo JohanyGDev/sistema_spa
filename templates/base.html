@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema Spa{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/colaboradoras.js') }}"></script>
+
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 style="margin: 0;">Camila Rodriguez SPA</h1>
+            <br>
+            <nav>
+                <a href="/">Inicio</a>
+                <a href="/servicios">Servicios</a>
+                {% if 'usuario' in session %}
+                    {% if session['rol'] == 'admin' %}
+                        <a href="/admin">Administración</a>
+                        <a href="/colaboradoras">Colaboradoras</a>
+                        <a href="#">Reservas</a>
+                    {% elif session['rol'] == 'cliente' %}
+                        <a href="/cliente">Mi Cuenta</a>
+                    {% endif %}
+                    <a href="/logout">Cerrar sesión</a>
+                {% else %}
+                    <a href="/login">Iniciar sesión</a>
+                    <a href="/registro">Registrarse</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+
+</body>
+</html>

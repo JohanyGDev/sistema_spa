@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Panel Cliente{% endblock %}
+{% block content %}
+<h2>Bienvenid@, {{usuario}}</h2>
+<p>Esta es tu área como cliente. Aquí podrás ver y hacer tus reservas.</p>
+<a href="/reservar">Reservar ahora</a><br>
+<a href="/logout">Cerrar sesión</a>
+{% endblock %}

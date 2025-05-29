@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<h2>Registro de Cliente</h2>
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+<form method="POST">
+    <label>Nombre:</label><br>
+    <input type="text" name="nombre" required><br>
+
+    <label>Correo:</label><br>
+    <input type="text" name="correo" required><br>
+
+    <label>Usuario:</label><br>
+    <input type="text" name="usuario" required><br>
+
+    <label>Contraseña:</label><br>
+    <input type="password" name="contrasena" required><br><br>
+    
+    <label>WhatsApp:</label><br>
+    <input type="text" name="whatsapp" placeholder="Número de WhatsApp" required>
+    <button type="submit">Registrarse</button>
+</form>
+<a href="/">Volver al inicio</a>
+{% endblock %}
